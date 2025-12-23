@@ -61,7 +61,6 @@
         .admin-active .admin-controls {
             display: flex;
         }
-        /* Highlight images in admin mode */
         .admin-active .editable-img-wrapper {
             position: relative;
             cursor: pointer;
@@ -91,6 +90,11 @@
             bottom: 20px;
             right: 20px;
             z-index: 100;
+        }
+
+        /* Play Button Overlay */
+        .play-icon {
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -181,7 +185,7 @@
                     <h2 class="text-2xl font-bold text-stone-800">Gallery & Videos</h2>
                     <button onclick="addImage()" class="admin-controls text-xs bg-green-100 text-green-800 px-2 py-1 rounded border border-green-300 hover:bg-green-200">➕ Add Media</button>
                 </div>
-                <span class="text-sm text-stone-500 italic">Highlights & Analysis</span>
+                <span class="text-sm text-stone-500 italic">Click videos to play in theatre mode</span>
             </div>
             <!-- Note: Grid adapts to video sizes -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-container">
@@ -243,97 +247,98 @@
             </div>
         </div>
     </div>
+    
+    <!-- Video Player Modal (Lightbox) -->
+    <div id="video-modal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-[200] p-4 backdrop-blur-sm transition-opacity duration-300" onclick="closeVideoModal()">
+        <div class="bg-black rounded-xl overflow-hidden shadow-2xl w-full max-w-5xl flex flex-col" onclick="event.stopPropagation()">
+            <!-- Video Container -->
+            <div class="relative w-full aspect-video bg-black">
+                <iframe id="modal-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            
+            <!-- Controls Bar -->
+            <div class="bg-stone-900 p-4 flex justify-between items-center border-t border-stone-800">
+                <div class="text-white">
+                    <h3 id="modal-caption" class="font-bold text-lg">Video Title</h3>
+                </div>
+                <div class="flex gap-3">
+                    <a id="yt-link" href="#" target="_blank" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+                        <span>▶ Watch on YouTube</span>
+                    </a>
+                    <button onclick="closeVideoModal()" class="px-4 py-2 bg-stone-700 hover:bg-stone-600 text-white rounded-lg text-sm font-medium transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button onclick="closeVideoModal()" class="absolute top-4 right-4 text-white text-4xl opacity-70 hover:opacity-100 transition-opacity">&times;</button>
+    </div>
 
     <!-- JavaScript Logic -->
     <script>
         // --- INITIAL DATA (PICKLEBALL ONLY) ---
-        // Replace this section when saving from Admin Mode
         let data = {
-    "themeColor": "text-green-600",
-    "themeBg": "bg-green-50",
-    "title": "Pickleball Coach & Coordinator",
-    "summary": "Energetic and motivated Pickleball Instructor with a passion for promoting the sport. Proven ability to teach game fundamentals, strategy, and scoring to players of all ages. My background in healthcare ensures a safe, inclusive, and fun environment for every session.",
-    "tags": [
-        "IPTPA Certified",
-        "Tournament Director",
-        "First Aid Ready",
-        "Strategy Expert"
-    ],
-    "competencies": {
-        "labels": [
-            "Instruction",
-            "Strategy",
-            "Event Mgmt",
-            "Communication",
-            "Safety",
-            "Drill Design"
-        ],
-        "data": [
-            95,
-            85,
-            80,
-            95,
-            90,
-            88
-        ]
-    },
-    "focusAreas": {
-        "labels": [
-            "On-Court Coaching",
-            "Event Organizing",
-            "Player Relations",
-            "Safety & Prep"
-        ],
-        "data": [
-            50,
-            30,
-            15,
-            5
-        ]
-    },
-    "experience": [
-        {
-            "role": "Head Pickleball Instructor",
-            "location": "City Community Center",
-            "date": "2023 - Present",
-            "details": [
-                "Lead daily beginner and intermediate clinics for groups of 12+ players.",
-                "Designed a 'Couch to Court' program that increased membership by 20%.",
-                "Organize monthly round-robin tournaments handling all scheduling and scoring."
+            "themeColor": "text-green-600",
+            "themeBg": "bg-green-50",
+            "title": "Pickleball Coach & Coordinator",
+            "summary": "Energetic and motivated Pickleball Instructor with a passion for promoting the sport. Proven ability to teach game fundamentals, strategy, and scoring to players of all ages. My background in healthcare ensures a safe, inclusive, and fun environment for every session.",
+            "tags": [
+                "IPTPA Certified",
+                "Tournament Director",
+                "First Aid Ready",
+                "Strategy Expert"
+            ],
+            "competencies": {
+                "labels": ["Instruction", "Strategy", "Event Mgmt", "Communication", "Safety", "Drill Design"],
+                "data": [95, 85, 80, 95, 90, 88]
+            },
+            "focusAreas": {
+                "labels": ["On-Court Coaching", "Event Organizing", "Player Relations", "Safety & Prep"],
+                "data": [50, 30, 15, 5]
+            },
+            "experience": [
+                {
+                    "role": "Head Pickleball Instructor",
+                    "location": "City Community Center",
+                    "date": "2023 - Present",
+                    "details": [
+                        "Lead daily beginner and intermediate clinics for groups of 12+ players.",
+                        "Designed a 'Couch to Court' program that increased membership by 20%.",
+                        "Organize monthly round-robin tournaments handling all scheduling and scoring."
+                    ]
+                },
+                {
+                    "role": "Volunteer Coordinator",
+                    "location": "Regional Pickleball Club",
+                    "date": "2021 - 2023",
+                    "details": [
+                        "Managed court rotations during peak hours to ensure fair play.",
+                        "Assisted in hosting the annual Regional Open Championship.",
+                        "Conducted safety checks on nets and court surfaces daily."
+                    ]
+                }
+            ],
+            "gallery": [
+                { 
+                    "src": "https://images.unsplash.com/photo-1626245942289-e155b410fb59?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
+                    "caption": "Doubles Strategy Session" 
+                },
+                { 
+                    "src": "https://images.unsplash.com/photo-1599586120429-48285b6a8a81?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80", 
+                    "caption": "Tournament Day Setup" 
+                },
+                {
+                    "src": "https://www.youtube.com/watch?v=J0W3_Hq1jG0",
+                    "caption": "Pickleball Rules Explained"
+                }
+            ],
+            "certs": [
+                "Certified Pickleball Instructor (IPTPA)",
+                "Standard First Aid & CPR Level C",
+                "Member: Pickleball Canada",
+                "NCCP Coaching Fundamentals"
             ]
-        },
-        {
-            "role": "Volunteer Coordinator",
-            "location": "Regional Pickleball Club",
-            "date": "2021 - 2023",
-            "details": [
-                "Managed court rotations during peak hours to ensure fair play.",
-                "Assisted in hosting the annual Regional Open Championship.",
-                "Conducted safety checks on nets and court surfaces daily."
-            ]
-        }
-    ],
-    "gallery": [
-        {
-            "src": "https://youtu.be/e-1wVIO0bZg?si=-NX9KQFAfY6URnP_",
-            "caption": "Doubles Strategy Session"
-        },
-        {
-            "src": "https://www.youtube.com/watch?v=AN5m-tWOAa8",
-            "caption": "Tournament Day Setup"
-        },
-        {
-            "src": "https://youtu.be/u5f_lCR1Ok0?si=O4-0-YAP75xbihEM",
-            "caption": "Pickleball Rules Explained"
-        }
-    ],
-    "certs": [
-        "Certified Pickleball Instructor (IPTPA)",
-        "Standard First Aid & CPR Level C",
-        "Member: Pickleball Canada",
-        "NCCP Coaching Fundamentals"
-    ]
-};
+        };
 
         // --- APP STATE ---
         let isAdmin = false;
@@ -348,6 +353,10 @@
         const certsContainer = document.getElementById('certs-container');
         const galleryContainer = document.getElementById('gallery-container');
         const saveBtn = document.getElementById('save-btn');
+        const videoModal = document.getElementById('video-modal');
+        const modalIframe = document.getElementById('modal-iframe');
+        const modalCaption = document.getElementById('modal-caption');
+        const ytLink = document.getElementById('yt-link');
 
         // --- Initialization ---
         function init() {
@@ -358,19 +367,12 @@
         // --- HELPER: CONVERT YOUTUBE URL ---
         function getEmbedUrl(url) {
             if (!url) return null;
-            
-            // Handle standard watch, shorts, embed, and youtu.be
-            // Regex captures ID (11 chars)
             const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
             const match = url.match(regExp);
-
             if (match && match[1].length === 11) {
                 return `https://www.youtube.com/embed/${match[1]}`;
             }
-            
-            if (url.includes('player.vimeo.com')) {
-                return url;
-            }
+            if (url.includes('player.vimeo.com')) return url;
             return null;
         }
 
@@ -425,33 +427,42 @@
             galleryContainer.innerHTML = '';
             if(data.gallery && data.gallery.length > 0) {
                 data.gallery.forEach((media, idx) => {
-                    // Automatically get embed URL if it's a video
                     const embedUrl = getEmbedUrl(media.src);
                     const isVideo = !!embedUrl;
-                    
                     const mediaDiv = document.createElement('div');
                     mediaDiv.className = `gallery-item relative overflow-hidden rounded-lg shadow-sm bg-stone-200 aspect-video group ${isAdmin ? 'editable-img-wrapper cursor-pointer' : ''}`;
                     
                     let contentHtml = '';
+                    let vidId = '';
                     
-                    if (isVideo && !isAdmin) {
-                        contentHtml = `<iframe src="${embedUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    } else {
-                        // In admin mode, try to fetch thumbnail if youtube
-                        let poster = media.src;
-                        let overlayText = "";
+                    if (isVideo) {
+                        vidId = embedUrl.split('/').pop();
+                        // Get high quality thumb
+                        const thumb = `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`;
                         
-                        if (isVideo) {
-                             // Try to get high-res thumb
-                             const vidId = embedUrl.split('/').pop();
-                             poster = `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`;
-                             overlayText = `<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40"><span class="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">▶ Video (Save to Play)</span></div>`;
+                        if (!isAdmin) {
+                            // PUBLIC MODE: Show Thumbnail + Play Icon
+                            contentHtml = `
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 group-hover:bg-opacity-40 transition-all z-10">
+                                    <div class="bg-white bg-opacity-90 rounded-full w-16 h-16 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-200">
+                                        <span class="text-green-600 text-3xl ml-1 play-icon">▶</span>
+                                    </div>
+                                </div>
+                                <img src="${thumb}" class="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-105">
+                            `;
+                            mediaDiv.onclick = () => openVideoModal(embedUrl, media.caption);
+                            mediaDiv.className += " cursor-pointer";
+                        } else {
+                            // ADMIN MODE
+                             contentHtml = `
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40"><span class="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">▶ Video</span></div>
+                                <img src="${thumb}" class="w-full h-full object-cover opacity-80">
+                            `;
                         }
-                        
-                        contentHtml = `
-                            ${overlayText}
-                            <img src="${poster}" alt="${media.caption}" class="w-full h-full object-cover transition-transform duration-500 opacity-80">
-                        `;
+                    } else {
+                        // IMAGE
+                        const poster = media.src;
+                        contentHtml = `<img src="${poster}" alt="${media.caption}" class="w-full h-full object-cover transition-transform duration-500">`;
                     }
 
                     if(isAdmin) {
@@ -462,12 +473,22 @@
                             <div class="absolute bottom-0 w-full p-2 bg-black bg-opacity-60 text-white text-xs text-center editable" contenteditable="true" onclick="event.stopPropagation()" onblur="updateImgCaption(${idx}, this.innerText)">${media.caption}</div>
                         `;
                     } else {
-                        mediaDiv.innerHTML = `
-                            ${contentHtml}
-                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end pointer-events-none">
-                                <p class="text-white text-sm font-medium">${media.caption}</p>
-                            </div>
-                        `;
+                        if(!isVideo) {
+                             mediaDiv.innerHTML = `
+                                ${contentHtml}
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end pointer-events-none">
+                                    <p class="text-white text-sm font-medium">${media.caption}</p>
+                                </div>
+                            `;
+                        } else {
+                             // Video wrapper needs inner HTML from above
+                             mediaDiv.innerHTML = `
+                                ${contentHtml}
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end pointer-events-none z-20">
+                                    <p class="text-white text-sm font-medium">${media.caption}</p>
+                                </div>
+                            `;
+                        }
                     }
                     galleryContainer.appendChild(mediaDiv);
                 });
@@ -491,6 +512,27 @@
             });
             
             setupLiveEditing();
+        }
+
+        // --- VIDEO MODAL LOGIC ---
+        function openVideoModal(embedUrl, caption) {
+            // Autoplay on open
+            const autoplayUrl = embedUrl + "?autoplay=1&rel=0";
+            modalIframe.src = autoplayUrl;
+            modalCaption.innerText = caption || "Video Player";
+            
+            // Set External YouTube Link
+            const vidId = embedUrl.split('/').pop();
+            ytLink.href = `https://www.youtube.com/watch?v=${vidId}`;
+            
+            videoModal.classList.remove('hidden');
+            videoModal.classList.add('flex');
+        }
+
+        function closeVideoModal() {
+            videoModal.classList.add('hidden');
+            videoModal.classList.remove('flex');
+            modalIframe.src = ""; // Stop video
         }
 
         // --- CHART LOGIC ---
