@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Pickleball Coach Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Toastify for notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .transition-colors { transition: all 0.3s ease-in-out; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* ADMIN MODE STYLES */
+        .editable {
+            border: 2px dashed transparent;
+            cursor: text;
+            transition: border 0.2s;
+        }
+        .admin-active .editable:hover, .admin-active .editable:focus {
+            border-color: #f59e0b; /* Amber-500 */
+            background-color: rgba(254, 252, 232, 0.5);
+            outline: none;
+        }
+        .admin-controls {
+            display: none;
+        }
+        .admin-active .admin-controls {
+            display: flex;
+        }
+        /* Highlight images in admin mode */
+        .admin-active .editable-img-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+        .admin-active .editable-img-wrapper::after {
+            content: "Click to Change URL";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .admin-active .editable-img-wrapper:hover::after {
+            opacity: 1;
+        }
+
+        /* Floating Admin Button */
+        #admin-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="text-2xl">🏓</span>
+                    <span class="text-xl font-bold tracking-tight text-green-700">Pickleball<span class="text-stone-400">Pro</span></span>
+                </div>
+                <div class="flex space-x-4">
+                     <a href="mailto:your-email@example.com" class="text-sm font-medium text-stone-500 hover:text-green-600">Contact Me</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Introduction Section -->
+        <section class="text-center space-y-4 max-w-3xl mx-auto fade-in group relative">
+            <h1 id="hero-title" class="text-4xl font-extrabold tracking-tight sm:text-5xl transition-colors duration-500 text-green-700" data-field="title">
+                <!-- Title injected by JS -->
+            </h1>
+            <p id="hero-summary" class="text-lg text-stone-600 leading-relaxed" data-field="summary">
+                <!-- Summary injected by JS -->
+            </p>
+            
+            <div class="admin-controls justify-center mt-2">
+                <button onclick="editTags()" class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded border border-amber-300 hover:bg-amber-200">✏️ Edit Tags</button>
+            </div>
+            <div id="hero-tags" class="flex flex-wrap justify-center gap-2 mt-4">
+                <!-- Tags injected by JS -->
+            </div>
+        </section>
+
+        <!-- Analytics Dashboard Section -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start fade-in">
+            <!-- Left: Competency Radar -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-stone-100 relative">
+                <div class="mb-4 border-b border-stone-100 pb-2 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-stone-800">Coaching Competencies</h2>
+                        <p class="text-sm text-stone-500">Skills visualization</p>
+                    </div>
+                    <button onclick="editChartData('competencies')" class="admin-controls text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded border border-amber-300 hover:bg-amber-200">✏️ Edit Data</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="competencyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right: Activity Breakdown -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-stone-100 relative">
+                <div class="mb-4 border-b border-stone-100 pb-2 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-stone-800">Coaching Focus</h2>
+                        <p class="text-sm text-stone-500">How I allocate my time</p>
+                    </div>
+                    <button onclick="editChartData('focusAreas')" class="admin-controls text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded border border-amber-300 hover:bg-amber-200">✏️ Edit Data</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="focusChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Timeline -->
+        <section class="fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                 <h2 class="text-2xl font-bold text-stone-800">Professional Experience</h2>
+                 <button onclick="addExperience()" class="admin-controls text-xs bg-green-100 text-green-800 px-2 py-1 rounded border border-green-300 hover:bg-green-200">➕ Add Job</button>
+            </div>
+           
+            <div class="border-l-4 border-stone-300 pl-6 space-y-8" id="experience-container">
+                <!-- Timeline items injected by JS -->
+            </div>
+        </section>
+        
+        <!-- Media Gallery Section -->
+        <section class="fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-bold text-stone-800">Gallery & Videos</h2>
+                    <button onclick="addImage()" class="admin-controls text-xs bg-green-100 text-green-800 px-2 py-1 rounded border border-green-300 hover:bg-green-200">➕ Add Media</button>
+                </div>
+                <span class="text-sm text-stone-500 italic">Highlights & Analysis</span>
+            </div>
+            <!-- Note: Grid adapts to video sizes -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-container">
+                <!-- Images/Videos injected by JS -->
+            </div>
+        </section>
+
+        <!-- Certifications & Education Grid -->
+        <section class="fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-2xl font-bold text-stone-800">Certifications & Education</h2>
+                <button onclick="editCerts()" class="admin-controls text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded border border-amber-300 hover:bg-amber-200">✏️ Edit List</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="certs-container">
+                <!-- Cards injected by JS -->
+            </div>
+        </section>
+        
+        <!-- Footer Info -->
+        <section class="bg-green-50 rounded-xl p-6 text-center border border-green-200 mt-8">
+            <p class="text-stone-600 max-w-2xl mx-auto italic">
+                "Pickleball isn't just a sport; it's a community. My goal is to help every player find their rhythm and enjoy the game safely."
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 pb-24">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <p class="text-stone-400 text-sm">&copy; 2025 Pickleball Pro.</p>
+        </div>
+    </footer>
+
+    <!-- Admin Floating Button -->
+    <div id="admin-fab" class="flex flex-col gap-2 items-end">
+        <button id="save-btn" onclick="exportData()" class="hidden shadow-lg bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition-transform transform hover:scale-105 flex items-center gap-2">
+            <span>💾 Save Changes</span>
+        </button>
+        <button id="admin-btn" onclick="toggleAdmin()" class="shadow-lg bg-stone-800 hover:bg-stone-900 text-white p-3 rounded-full transition-transform transform hover:scale-105" title="Admin Login">
+            ⚙️
+        </button>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[100]">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-2xl">
+            <h3 class="text-xl font-bold mb-2 text-stone-800">Save Your Changes</h3>
+            <p class="text-sm text-stone-500 mb-4">
+                Since this is a static site (no database), you must copy the code below and update your HTML file manually.
+                <br>1. Click "Copy Code".
+                <br>2. Open your <code>index.html</code> file.
+                <br>3. Replace the <code>let data = { ... };</code> section with this new code.
+            </p>
+            <textarea id="export-area" class="w-full h-64 p-3 border border-stone-300 rounded font-mono text-xs bg-stone-50 mb-4" readonly></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-stone-600 hover:bg-stone-100 rounded">Close</button>
+                <button onclick="copyToClipboard()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">Copy Code</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- INITIAL DATA (PICKLEBALL ONLY) ---
+        // Replace this section when saving from Admin Mode
+        let data = {
+    "themeColor": "text-green-600",
+    "themeBg": "bg-green-50",
+    "title": "Pickleball Coach & Coordinator",
+    "summary": "Energetic and motivated Pickleball Instructor with a passion for promoting the sport. Proven ability to teach game fundamentals, strategy, and scoring to players of all ages. My background in healthcare ensures a safe, inclusive, and fun environment for every session.",
+    "tags": [
+        "IPTPA Certified",
+        "Tournament Director",
+        "First Aid Ready",
+        "Strategy Expert"
+    ],
+    "competencies": {
+        "labels": [
+            "Instruction",
+            "Strategy",
+            "Event Mgmt",
+            "Communication",
+            "Safety",
+            "Drill Design"
+        ],
+        "data": [
+            95,
+            85,
+            80,
+            95,
+            90,
+            88
+        ]
+    },
+    "focusAreas": {
+        "labels": [
+            "On-Court Coaching",
+            "Event Organizing",
+            "Player Relations",
+            "Safety & Prep"
+        ],
+        "data": [
+            50,
+            30,
+            15,
+            5
+        ]
+    },
+    "experience": [
+        {
+            "role": "Head Pickleball Instructor",
+            "location": "City Community Center",
+            "date": "2023 - Present",
+            "details": [
+                "Lead daily beginner and intermediate clinics for groups of 12+ players.",
+                "Designed a 'Couch to Court' program that increased membership by 20%.",
+                "Organize monthly round-robin tournaments handling all scheduling and scoring."
+            ]
+        },
+        {
+            "role": "Volunteer Coordinator",
+            "location": "Regional Pickleball Club",
+            "date": "2021 - 2023",
+            "details": [
+                "Managed court rotations during peak hours to ensure fair play.",
+                "Assisted in hosting the annual Regional Open Championship.",
+                "Conducted safety checks on nets and court surfaces daily."
+            ]
+        }
+    ],
+    "gallery": [
+        {
+            "src": "https://youtu.be/e-1wVIO0bZg?si=-NX9KQFAfY6URnP_",
+            "caption": "Doubles Strategy Session"
+        },
+        {
+            "src": "https://www.youtube.com/watch?v=AN5m-tWOAa8",
+            "caption": "Tournament Day Setup"
+        },
+        {
+            "src": "https://youtu.be/u5f_lCR1Ok0?si=O4-0-YAP75xbihEM",
+            "caption": "Pickleball Rules Explained"
+        }
+    ],
+    "certs": [
+        "Certified Pickleball Instructor (IPTPA)",
+        "Standard First Aid & CPR Level C",
+        "Member: Pickleball Canada",
+        "NCCP Coaching Fundamentals"
+    ]
+};
+
+        // --- APP STATE ---
+        let isAdmin = false;
+        let radarChartInstance = null;
+        let barChartInstance = null;
+
+        // --- DOM Elements ---
+        const heroTitle = document.getElementById('hero-title');
+        const heroSummary = document.getElementById('hero-summary');
+        const heroTags = document.getElementById('hero-tags');
+        const experienceContainer = document.getElementById('experience-container');
+        const certsContainer = document.getElementById('certs-container');
+        const galleryContainer = document.getElementById('gallery-container');
+        const saveBtn = document.getElementById('save-btn');
+
+        // --- Initialization ---
+        function init() {
+            updateView();
+            setupLiveEditing();
+        }
+
+        // --- HELPER: CONVERT YOUTUBE URL ---
+        function getEmbedUrl(url) {
+            if (!url) return null;
+            
+            // Handle standard watch, shorts, embed, and youtu.be
+            // Regex captures ID (11 chars)
+            const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+            const match = url.match(regExp);
+
+            if (match && match[1].length === 11) {
+                return `https://www.youtube.com/embed/${match[1]}`;
+            }
+            
+            if (url.includes('player.vimeo.com')) {
+                return url;
+            }
+            return null;
+        }
+
+        // --- CORE VIEW LOGIC ---
+        function updateView() {
+            // Text Fields
+            heroTitle.innerHTML = data.title;
+            heroTitle.className = `text-4xl font-extrabold tracking-tight sm:text-5xl transition-colors duration-500 text-green-700 ${isAdmin ? 'editable' : ''}`;
+            
+            heroSummary.textContent = data.summary;
+            heroSummary.className = `text-lg text-stone-600 leading-relaxed ${isAdmin ? 'editable' : ''}`;
+            
+            // Tags
+            heroTags.innerHTML = '';
+            data.tags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = `inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200`;
+                span.textContent = tag;
+                heroTags.appendChild(span);
+            });
+
+            // Charts
+            updateCharts();
+
+            // Experience
+            experienceContainer.innerHTML = '';
+            data.experience.forEach((job, index) => {
+                const item = document.createElement('div');
+                item.className = "relative pl-8 sm:pl-32 py-2 group fade-in";
+                
+                let controls = '';
+                if(isAdmin) {
+                    controls = `<button onclick="deleteExperience(${index})" class="absolute right-0 top-0 text-red-500 hover:bg-red-50 p-1 rounded">🗑️</button>`;
+                }
+
+                item.innerHTML = `
+                    <div class="absolute left-[-11px] top-3 h-5 w-5 rounded-full border-4 border-white bg-green-500 shadow-sm"></div>
+                    <div class="font-medium text-xs text-stone-400 mb-1 sm:mb-0 sm:absolute sm:left-0 sm:top-3 sm:w-24 sm:text-right uppercase tracking-wider ${isAdmin ? 'editable' : ''}" onblur="updateExp(${index}, 'date', this.innerText)" ${isAdmin ? 'contenteditable="true"' : ''}>${job.date}</div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-100 hover:shadow-md transition-shadow relative">
+                        ${controls}
+                        <h3 class="text-lg font-bold text-stone-800 ${isAdmin ? 'editable' : ''}" onblur="updateExp(${index}, 'role', this.innerText)" ${isAdmin ? 'contenteditable="true"' : ''}>${job.role}</h3>
+                        <p class="text-sm font-medium text-green-600 mb-3 ${isAdmin ? 'editable' : ''}" onblur="updateExp(${index}, 'location', this.innerText)" ${isAdmin ? 'contenteditable="true"' : ''}>${job.location}</p>
+                        <ul class="list-disc list-inside space-y-1 text-stone-600 text-sm">
+                            ${job.details.map((d, i) => `<li ${isAdmin ? 'contenteditable="true" class="editable"' : ''} onblur="updateExpDetail(${index}, ${i}, this.innerText)">${d}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                experienceContainer.appendChild(item);
+            });
+
+            // Gallery (Images + Videos)
+            galleryContainer.innerHTML = '';
+            if(data.gallery && data.gallery.length > 0) {
+                data.gallery.forEach((media, idx) => {
+                    // Automatically get embed URL if it's a video
+                    const embedUrl = getEmbedUrl(media.src);
+                    const isVideo = !!embedUrl;
+                    
+                    const mediaDiv = document.createElement('div');
+                    mediaDiv.className = `gallery-item relative overflow-hidden rounded-lg shadow-sm bg-stone-200 aspect-video group ${isAdmin ? 'editable-img-wrapper cursor-pointer' : ''}`;
+                    
+                    let contentHtml = '';
+                    
+                    if (isVideo && !isAdmin) {
+                        contentHtml = `<iframe src="${embedUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                    } else {
+                        // In admin mode, try to fetch thumbnail if youtube
+                        let poster = media.src;
+                        let overlayText = "";
+                        
+                        if (isVideo) {
+                             // Try to get high-res thumb
+                             const vidId = embedUrl.split('/').pop();
+                             poster = `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`;
+                             overlayText = `<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40"><span class="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">▶ Video (Save to Play)</span></div>`;
+                        }
+                        
+                        contentHtml = `
+                            ${overlayText}
+                            <img src="${poster}" alt="${media.caption}" class="w-full h-full object-cover transition-transform duration-500 opacity-80">
+                        `;
+                    }
+
+                    if(isAdmin) {
+                        mediaDiv.onclick = () => updateImage(idx);
+                        mediaDiv.innerHTML = `
+                            <button onclick="deleteImage(event, ${idx})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 z-20 text-xs shadow-sm">🗑️</button>
+                            ${contentHtml}
+                            <div class="absolute bottom-0 w-full p-2 bg-black bg-opacity-60 text-white text-xs text-center editable" contenteditable="true" onclick="event.stopPropagation()" onblur="updateImgCaption(${idx}, this.innerText)">${media.caption}</div>
+                        `;
+                    } else {
+                        mediaDiv.innerHTML = `
+                            ${contentHtml}
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end pointer-events-none">
+                                <p class="text-white text-sm font-medium">${media.caption}</p>
+                            </div>
+                        `;
+                    }
+                    galleryContainer.appendChild(mediaDiv);
+                });
+            } else {
+                 galleryContainer.innerHTML = '<p class="text-stone-400 text-sm col-span-3 text-center italic">No media added yet.</p>';
+            }
+
+            // Certs
+            certsContainer.innerHTML = '';
+            data.certs.forEach(cert => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-lg shadow-sm border-l-4 border-green-500 hover:border-green-700 transition-all flex items-start gap-3";
+                let icon = '📜';
+                if(cert.includes('First Aid')) icon = '🚑';
+                if(cert.includes('Member')) icon = '🤝';
+                card.innerHTML = `
+                    <span class="text-2xl">${icon}</span>
+                    <span class="text-stone-700 font-medium">${cert}</span>
+                `;
+                certsContainer.appendChild(card);
+            });
+            
+            setupLiveEditing();
+        }
+
+        // --- CHART LOGIC ---
+        function updateCharts() {
+            const radarCtx = document.getElementById('competencyChart').getContext('2d');
+            const barCtx = document.getElementById('focusChart').getContext('2d');
+            
+            const colorMain = 'rgba(22, 163, 74, 0.2)';
+            const colorBorder = 'rgba(22, 163, 74, 1)';
+
+            if (radarChartInstance) radarChartInstance.destroy();
+            radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: data.competencies.labels,
+                    datasets: [{
+                        label: 'Skill Proficiency',
+                        data: data.competencies.data,
+                        backgroundColor: colorMain,
+                        borderColor: colorBorder,
+                        pointBackgroundColor: colorBorder
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            if (barChartInstance) barChartInstance.destroy();
+            barChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.focusAreas.labels,
+                    datasets: [{
+                        label: '% Focus',
+                        data: data.focusAreas.data,
+                        backgroundColor: colorBorder,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { display: false, grid: {display:false} },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        function toggleAdmin() {
+            const pin = prompt("Enter Admin PIN (Default is 1234):", "");
+            if(pin === "1234") {
+                isAdmin = !isAdmin;
+                document.body.classList.toggle('admin-active');
+                if(isAdmin) {
+                    saveBtn.classList.remove('hidden');
+                    Toastify({text: "🔧 Admin Mode Enabled", duration: 3000, style: { background: "#15803d" }}).showToast();
+                } else {
+                    saveBtn.classList.add('hidden');
+                }
+                updateView();
+            } else if (pin !== null) {
+                alert("Incorrect PIN");
+            }
+        }
+
+        function setupLiveEditing() {
+            if(!isAdmin) {
+                if(heroTitle) heroTitle.contentEditable = "false";
+                if(heroSummary) heroSummary.contentEditable = "false";
+                return;
+            }
+
+            heroTitle.contentEditable = "true";
+            heroTitle.onblur = () => { data.title = heroTitle.innerText; };
+
+            heroSummary.contentEditable = "true";
+            heroSummary.onblur = () => { data.summary = heroSummary.innerText; };
+        }
+
+        // --- DATA UPDATERS ---
+        function updateExp(idx, field, value) {
+            data.experience[idx][field] = value;
+        }
+
+        function updateExpDetail(expIdx, detailIdx, value) {
+            data.experience[expIdx].details[detailIdx] = value;
+        }
+        
+        function deleteExperience(idx) {
+            if(confirm('Delete this job entry?')) {
+                data.experience.splice(idx, 1);
+                updateView();
+            }
+        }
+
+        function addExperience() {
+            data.experience.unshift({
+                role: "New Role Title",
+                location: "Location",
+                date: "Year",
+                details: ["Click to edit detail"]
+            });
+            updateView();
+        }
+
+        function editTags() {
+            const newTags = prompt("Enter tags separated by comma:", data.tags.join(", "));
+            if(newTags) {
+                data.tags = newTags.split(",").map(t => t.trim());
+                updateView();
+            }
+        }
+
+        function editCerts() {
+            const newCerts = prompt("Enter certifications separated by comma:", data.certs.join(", "));
+            if(newCerts) {
+                data.certs = newCerts.split(",").map(t => t.trim());
+                updateView();
+            }
+        }
+
+        function editChartData(type) {
+            const labels = prompt("Enter Labels (comma separated):", data[type].labels.join(","));
+            const values = prompt("Enter Values (0-100, comma separated):", data[type].data.join(","));
+            
+            if(labels && values) {
+                data[type].labels = labels.split(",");
+                data[type].data = values.split(",").map(Number);
+                updateCharts();
+            }
+        }
+
+        // --- IMAGE HANDLING ---
+        function updateImage(idx) {
+            const newUrl = prompt("Enter Image URL or YouTube Link:", data.gallery[idx].src);
+            if(newUrl) {
+                data.gallery[idx].src = newUrl;
+                updateView();
+            }
+        }
+        
+        function updateImgCaption(idx, val) {
+            data.gallery[idx].caption = val;
+        }
+        
+        function addImage() {
+             const newUrl = prompt("Enter Image URL or YouTube Link:", "");
+             if(newUrl) {
+                 if(!data.gallery) data.gallery = [];
+                 data.gallery.push({ src: newUrl, caption: "New Media" });
+                 updateView();
+             }
+        }
+        
+        function deleteImage(e, idx) {
+            e.stopPropagation();
+            if(confirm("Remove this media?")) {
+                data.gallery.splice(idx, 1);
+                updateView();
+            }
+        }
+
+        // --- EXPORT LOGIC ---
+        function exportData() {
+            const jsonString = JSON.stringify(data, null, 4);
+            const exportText = `let data = ${jsonString};`;
+            
+            document.getElementById('export-area').value = exportText;
+            document.getElementById('export-modal').classList.remove('hidden');
+            document.getElementById('export-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+            document.getElementById('export-modal').classList.remove('flex');
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("export-area");
+            copyText.select();
+            document.execCommand("copy");
+            Toastify({text: "✅ Code Copied! Paste into your HTML file.", duration: 4000, style: { background: "#16a34a" }}).showToast();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
